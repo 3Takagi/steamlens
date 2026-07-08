@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SteamLens｜游戏口碑与版本洞察</title>
+    <link rel="stylesheet" href="styles.css?v=20260707-readability2" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="#overview" aria-label="SteamLens 首页">
+          <span class="brand-mark">SL</span>
+          <span><b>SteamLens</b><small>PLAYER VOICE INTELLIGENCE</small></span>
+        </a>
+        <nav class="topnav" aria-label="页面导航">
+          <a class="active" href="#overview">总览</a>
+          <a href="#topics">问题主题</a>
+          <a href="#segments">玩家分层</a>
+          <a href="#quality">数据质量</a>
+          <a href="#model">模型评估</a>
+          <a href="#reviews">评论样本</a>
+        </nav>
+        <div class="data-state"><i></i><span id="generated-at">读取数据中</span></div>
+      </header>
+
+      <main>
+        <section class="hero" id="overview">
+          <div class="hero-copy">
+            <p class="kicker">STEAM REVIEW OBSERVATORY</p>
+            <h1>从玩家评论，定位真正影响口碑的问题。</h1>
+            <p id="hero-description">四款游戏、2,000 条公开评论的近期口碑快照。</p>
+          </div>
+          <div class="hero-meta">
+            <span><small>数据范围</small><b id="sample-range">—</b></span>
+            <span><small>当前样本</small><b id="sample-count">—</b></span>
+          </div>
+        </section>
+
+        <section class="game-index" id="game-index" aria-label="选择游戏"></section>
+
+        <section class="game-focus">
+          <div class="game-visual"><img id="game-image" alt="" /></div>
+          <div class="game-identity">
+            <p class="kicker" id="game-appid">APP ID</p>
+            <h2 id="game-name">—</h2>
+            <p id="game-focus">—</p>
+          </div>
+          <div class="verdict" id="verdict">
+            <small>近期样本判断</small>
+            <strong>—</strong>
+            <span>—</span>
+          </div>
+        </section>
+
+        <section class="metric-grid" id="metrics"></section>
+
+        <section class="comparison-strip">
+          <header class="panel-head">
+            <div><p class="kicker">PORTFOLIO BENCHMARK</p><h3>四款游戏近期对比</h3></div>
+            <span class="panel-note">同样本量，仅比较本次采集窗口</span>
+          </header>
+          <div id="comparison-table" class="comparison-table"></div>
+        </section>
+
+        <section class="analysis-grid">
+          <article class="panel pulse-panel">
+            <header class="panel-head">
+              <div><p class="kicker">SENTIMENT PULSE</p><h3 id="trend-title">近期口碑脉冲</h3></div>
+              <span class="panel-note" id="trend-note">按评论发布时间分组</span>
+            </header>
+            <div id="trend-chart" class="trend-chart"></div>
+          </article>
+
+          <article class="panel insight-panel">
+            <header class="panel-head"><div><p class="kicker">DECISION BRIEF</p><h3>当前判断</h3></div></header>
+            <ol id="insight-list" class="insight-list"></ol>
+          </article>
+        </section>
+
+        <section class="section-block" id="topics">
+          <header class="section-head">
+            <div><p class="kicker">ISSUE LANDSCAPE</p><h2>问题主题</h2></div>
+            <p>基于多语言关键词规则识别，所有结果均可回到原始评论核验。</p>
+          </header>
+          <div class="topic-layout">
+            <div class="panel topic-panel">
+              <div class="topic-columns"><span>主题</span><span>提及量</span><span>主题负面率</span><span>差评占比</span></div>
+              <div id="topic-bars" class="topic-bars"></div>
+            </div>
+            <div class="panel topic-detail" id="topic-detail"></div>
+          </div>
+        </section>
+
+        <section class="section-block" id="segments">
+          <header class="section-head">
+            <div><p class="kicker">PLAYER SEGMENTS</p><h2>玩家分层</h2></div>
+            <p>用评论发布时的游玩时长，区分首次体验与长期玩家。</p>
+          </header>
+          <div class="segment-grid" id="segment-grid"></div>
+          <div class="panel language-panel">
+            <header class="panel-head"><div><p class="kicker">LANGUAGE SPLIT</p><h3>语言样本差异</h3></div></header>
+            <div id="language-table" class="language-table"></div>
+          </div>
+        </section>
+
+        <section class="section-block" id="quality">
+          <header class="section-head">
+            <div><p class="kicker">DATA QUALITY</p><h2>数据质量</h2></div>
+            <p>先判断数据能否支持结论，再讨论模型表现。所有检查由本地分析脚本生成。</p>
+          </header>
+          <div class="quality-layout">
+            <article class="panel quality-score">
+              <p class="kicker">QUALITY GATES</p>
+              <strong id="quality-pass-count">—</strong>
+              <span>项质量检查通过</span>
+              <div id="quality-checks" class="quality-checks"></div>
+            </article>
+            <div id="quality-metrics" class="quality-metrics"></div>
+          </div>
+          <article class="panel quality-game-panel">
+            <header class="panel-head"><div><p class="kicker">GAME COVERAGE</p><h3>分游戏数据覆盖</h3></div></header>
+            <div id="quality-game-table" class="quality-game-table"></div>
+          </article>
+        </section>
+
+        <section class="section-block" id="model">
+          <header class="section-head">
+            <div><p class="kicker">MODEL EVALUATION</p><h2>模型评估</h2></div>
+            <p>字符级 TF-IDF 与逻辑回归，全程本地训练；Steam 推荐标签作为监督信号。</p>
+          </header>
+          <div id="model-metrics" class="model-metrics"></div>
+          <div class="model-layout">
+            <article class="panel confusion-panel">
+              <header class="panel-head"><div><p class="kicker">CONFUSION MATRIX</p><h3>混淆矩阵</h3></div></header>
+              <div id="confusion-matrix" class="confusion-matrix"></div>
+            </article>
+            <article class="panel cross-game-panel">
+              <header class="panel-head"><div><p class="kicker">LEAVE-ONE-GAME-OUT</p><h3>跨游戏泛化</h3></div></header>
+              <div id="cross-game-results" class="cross-game-results"></div>
+            </article>
+          </div>
+          <article class="panel error-panel">
+            <header class="panel-head"><div><p class="kicker">ERROR ANALYSIS</p><h3>高置信度错例</h3></div><span class="panel-note">模型最值得复盘的判断错误</span></header>
+            <div id="error-list" class="error-list"></div>
+          </article>
+        </section>
+
+        <section class="section-block" id="reviews">
+          <header class="section-head">
+            <div><p class="kicker">EVIDENCE EXPLORER</p><h2>原始评论</h2></div>
+            <p>分析结论不是黑箱；筛选、搜索并直接检查对应证据。</p>
+          </header>
+          <div class="review-toolbar">
+            <input id="review-search" type="search" placeholder="搜索评论内容" />
+            <select id="sentiment-filter" aria-label="评价筛选">
+              <option value="all">全部评价</option><option value="positive">推荐</option><option value="negative">不推荐</option>
+            </select>
+            <select id="language-filter" aria-label="语言筛选"><option value="all">全部语言</option></select>
+            <select id="topic-filter" aria-label="主题筛选"><option value="all">全部主题</option></select>
+            <span id="review-result-count">—</span>
+          </div>
+          <div id="review-list" class="review-list"></div>
+          <div class="pagination">
+            <button id="prev-page" type="button" aria-label="上一页">←</button>
+            <span id="page-state">1 / 1</span>
+            <button id="next-page" type="button" aria-label="下一页">→</button>
+          </div>
+        </section>
+      </main>
+
+      <footer><span>SteamLens</span><p>数据来自 Steam 公开用户评测，仅用于产品与运营分析演示。</p></footer>
+    </div>
+    <script src="app.js?v=20260707-readability2"></script>
+  </body>
+</html>
