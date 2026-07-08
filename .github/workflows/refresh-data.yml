@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: steamlens-data-refresh
@@ -15,6 +17,9 @@ concurrency:
 
 jobs:
   refresh:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -65,3 +70,20 @@ jobs:
           fi
           git commit -m "chore(data): refresh Steam reviews"
           git push
+
+      - name: Prepare refreshed static site
+        run: |
+          mkdir -p _site/data
+          cp index.html app.js styles.css _site/
+          cp -R assets _site/assets
+          cp public-data/steam-reviews.json _site/data/steam-reviews.json
+          cp public-data/model-analysis.json _site/data/model-analysis.json
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy refreshed site
+        id: deployment
+        uses: actions/deploy-pages@v4
