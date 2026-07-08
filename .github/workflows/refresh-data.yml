@@ -1,0 +1,67 @@
+name: Refresh Steam data
+
+on:
+  schedule:
+    # 09:15 Asia/Shanghai (GitHub Actions schedules use UTC).
+    - cron: "15 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: steamlens-data-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-cloud.txt
+
+      - name: Install analysis dependencies
+        run: python -m pip install -r requirements-cloud.txt
+
+      - name: Collect current Steam reviews
+        run: python scripts/collect.py
+
+      - name: Validate collected dataset
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path("data/steam-reviews.json").read_text(encoding="utf-8"))
+          games = data.get("games", [])
+          assert len(games) == 4, f"Expected 4 games, got {len(games)}"
+          for game in games:
+              count = len(game.get("reviews", []))
+              assert count >= 450, f"{game.get('name')}: only {count} reviews"
+          print("Dataset validation passed.")
+          PY
+
+      - name: Rebuild analysis and public data
+        run: |
+          python scripts/analyze.py
+          python scripts/build-public.py
+
+      - name: Commit refreshed public data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public-data assets
+          if git diff --cached --quiet; then
+            echo "No public data changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(data): refresh Steam reviews"
+          git push

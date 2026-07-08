@@ -14,6 +14,7 @@ ASSET_DIR = ROOT / "assets"
 TARGET_COUNT = 500
 STORE_PATH = DATA_DIR / "review-store.json"
 SNAPSHOT_PATH = DATA_DIR / "snapshots.json"
+PUBLIC_DATA_PATH = ROOT / "public-data" / "steam-reviews.json"
 
 TOPIC_RULES = [
     {"id": "performance", "name": "性能与优化", "description": "帧率、卡顿、显存、CPU/GPU 占用与硬件适配问题。", "words": ["performance", "fps", "frame rate", "stutter", "lag", "optimization", "optimiz", "crash", "性能", "优化", "帧", "卡顿", "闪退", "崩溃", "显存", "cpu", "gpu", "フレーム", "最適化", "クラッシュ", "성능", "프레임"]},
@@ -84,6 +85,15 @@ def load_json(path: Path, default: dict) -> dict:
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return default
+
+
+def load_snapshots() -> dict:
+    """Keep trend history when a cloud runner starts from a clean checkout."""
+    local = load_json(SNAPSHOT_PATH, {})
+    if local.get("snapshots"):
+        return local
+    public = load_json(PUBLIC_DATA_PATH, {})
+    return {"schema": 1, "snapshots": public.get("snapshots") or []}
 
 
 def classify_review(text: str) -> list[str]:
@@ -224,7 +234,7 @@ def main() -> None:
     generated_at = datetime.now(timezone.utc).isoformat()
     snapshot_date = datetime.now().astimezone().date().isoformat()
     store = load_json(STORE_PATH, {"schema": 1, "games": {}})
-    snapshots = load_json(SNAPSHOT_PATH, {"schema": 1, "snapshots": []})
+    snapshots = load_snapshots()
     result = {
         "generated_at": generated_at,
         "source": "Steam public user reviews endpoint",

@@ -35,6 +35,8 @@ E:\codex\tools\Python310\python.exe scripts\collect.py
 
 ## 定期更新
 
+在线版由 GitHub Actions 在北京时间每天 09:15 自动采集、分析并重新部署，不依赖个人电脑开机。也可以在仓库的 **Actions > Refresh Steam data > Run workflow** 中立即触发更新。
+
 - `enable-daily-refresh.bat`：启用每天 09:00 自动更新。
 - `refresh-status.bat`：查看任务状态、下次运行时间和上次结果。
 - `disable-auto-refresh.bat`：取消自动更新。
