@@ -85,7 +85,7 @@ function trendBuckets(reviews) {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(review);
   });
-  if (groups.size >= 3) return [...groups.entries()].sort(([a],[b]) => a.localeCompare(b)).map(([key,items]) => ({ label: key.slice(5), rate: positiveRate(items), count: items.length }));
+  if (groups.size >= 3) return [...groups.entries()].sort(([a],[b]) => a.localeCompare(b)).slice(-30).map(([key,items]) => ({ label: key.slice(5), rate: positiveRate(items), count: items.length }));
   const sorted = [...reviews].sort((a,b) => a.created - b.created);
   const size = Math.ceil(sorted.length / 10);
   return Array.from({length: 10}, (_,i) => { const items = sorted.slice(i*size,(i+1)*size); return {label:`批次 ${i+1}`,rate:positiveRate(items),count:items.length}; }).filter(x => x.count);
@@ -93,10 +93,12 @@ function trendBuckets(reviews) {
 
 function renderTrend() {
   const history=(state.data.snapshots||[]).map(snapshot=>({snapshot,data:snapshot.games?.[String(state.game.app_id)]})).filter(item=>item.data);
-  const hasHistory=history.length>=2;
-  const buckets = hasHistory ? history.map(item=>({label:item.snapshot.date.slice(5),rate:item.data.positive_rate,count:item.data.sample_count})) : trendBuckets(state.game.reviews);
-  $("#trend-title").textContent=hasHistory?"每日口碑快照":"近期口碑脉冲";
-  $("#trend-note").textContent=hasHistory?`${history.length} 个采集日 · 持续积累中`:"历史不足，暂按当前评论分组";
+  const hasHistory=history.length>=7;
+  const recentHistory=history.slice(-30);
+  const buckets = hasHistory ? recentHistory.map(item=>({label:item.snapshot.date.slice(5),rate:item.data.positive_rate,count:item.data.sample_count})) : trendBuckets(state.game.reviews);
+  const usesBatches=!hasHistory && buckets[0]?.label.startsWith("批次");
+  $("#trend-title").textContent=hasHistory?"近 30 日口碑快照":usesBatches?"近期评论批次趋势":"评论发布时间趋势";
+  $("#trend-note").textContent=hasHistory?`${recentHistory.length} 个采集日 · 每日自动更新`:usesBatches?`${buckets.length} 个等量时间批次 · 快照已积累 ${history.length}/7 天`:`覆盖 ${buckets.length} 个发布日期 · 快照已积累 ${history.length}/7 天`;
   const w=760,h=220,pad=28;
   const x = (i) => pad + i * ((w-pad*2)/Math.max(1,buckets.length-1)); const y = (rate) => h-pad-rate*(h-pad*2);
   const points = buckets.map((b,i) => `${x(i)},${y(b.rate)}`).join(" ");
